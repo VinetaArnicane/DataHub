@@ -70,6 +70,8 @@ x-datahub-system-update-service: &datahub-system-update-service
     ENTITY_VERSIONING_ENABLED: ${ENTITY_VERSIONING_ENABLED:-true}
   volumes:
     - ${HOME}/.datahub/plugins:/etc/datahub/plugins
+  labels:
+    datahub_setup_job: true
 
 x-datahub-system-update-service-dev: &datahub-system-update-service-dev
   <<: *datahub-system-update-service
