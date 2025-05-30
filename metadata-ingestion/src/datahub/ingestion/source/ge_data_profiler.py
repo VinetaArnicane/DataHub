@@ -184,34 +184,19 @@ class GEProfilerRequest:
 
 def get_column_unique_count_dh_patch(self: SqlAlchemyDataset, column: str) -> int:
     if self.engine.dialect.name.lower() == REDSHIFT:
-        element_values = self.engine.execute(
-            sa.select(
-                [
-                    # We use coalesce here to force SQL Alchemy to see this
-                    # as a column expression.
-                    sa.func.coalesce(
-                        sa.text(f'APPROXIMATE count(distinct "{column}")')
-                    ),
-                ]
-            ).select_from(self._table)
-        )
-        return convert_to_json_serializable(element_values.fetchone()[0])
+        # We use coalesce here to force SQL Alchemy to see this
+        # as a column expression.
+        expr = sa.func.coalesce(sa.text(f'APPROXIMATE count(distinct "{column}")'))
     elif (
         self.engine.dialect.name.lower() == BIGQUERY
         or self.engine.dialect.name.lower() == SNOWFLAKE
     ):
-        element_values = self.engine.execute(
-            sa.select(sa.func.APPROX_COUNT_DISTINCT(sa.column(column))).select_from(
-                self._table
-            )
-        )
-        return convert_to_json_serializable(element_values.fetchone()[0])
+        expr = sa.func.APPROX_COUNT_DISTINCT(sa.column(column))
+    else:
+        expr = sa.func.count(sa.func.distinct(sa.column(column)))
+
     return convert_to_json_serializable(
-        self.engine.execute(
-            sa.select([sa.func.count(sa.func.distinct(sa.column(column)))]).select_from(
-                self._table
-            )
-        ).scalar()
+        self.engine.execute(sa.select([expr]).select_from(self._table)).scalar()
     )
 
 
