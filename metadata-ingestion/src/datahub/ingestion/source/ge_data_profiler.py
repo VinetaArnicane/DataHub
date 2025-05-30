@@ -191,6 +191,11 @@ def get_column_unique_count_dh_patch(self: SqlAlchemyDataset, column: str) -> in
         or self.engine.dialect.name.lower() == SNOWFLAKE
     ):
         expr = sa.func.APPROX_COUNT_DISTINCT(sa.column(column))
+    elif (
+        self.engine.dialect.name.lower() == GXSqlDialect.AWSATHENA
+        or self.engine.dialect.name.lower() == GXSqlDialect.TRINO
+    ):
+        expr = sa.func.APPROX_DISTINCT(sa.column(column))
     else:
         expr = sa.func.count(sa.func.distinct(sa.column(column)))
 
