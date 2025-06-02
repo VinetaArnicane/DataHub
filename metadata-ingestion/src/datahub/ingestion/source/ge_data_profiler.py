@@ -737,10 +737,17 @@ class _SingleDatasetProfiler(BasicDatasetProfilerBase):
         if not self.config.include_field_distinct_value_frequencies:
             return
         try:
+            # Great Expectations runs SORT BY in SQL by default, but not all column types are sortable
+            # (such as JSON data types on Athena/Trino). Pass sort="none" and sort it in Python instead.
             column_profile.distinctValueFrequencies = [
                 ValueFrequencyClass(value=str(value), frequency=count)
-                for value, count in self.dataset.get_column_value_counts(column).items()
+                for value, count in self.dataset.get_column_value_counts(
+                    column, sort="none"
+                ).items()
             ]
+            column_profile.distinctValueFrequencies.sort(
+                key=lambda valfreq: valfreq.value
+            )
         except Exception as e:
             logger.debug(
                 f"Caught exception while attempting to get distinct value frequencies for column {column}. {e}"
