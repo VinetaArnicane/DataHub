@@ -124,5 +124,5 @@ function IngestionSourceTable({
         />
     );
 }
-
-export default IngestionSourceTable;
+const MemoizedTable = React.memo(IngestionSourceTable);
+export default MemoizedTable;
