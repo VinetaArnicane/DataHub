@@ -7,6 +7,7 @@ import { CLI_EXECUTOR_ID } from '@app/ingestV2/constants';
 import DateTimeColumn from '@app/ingestV2/shared/components/columns/DateTimeColumn';
 import { StatusColumn } from '@app/ingestV2/shared/components/columns/StatusColumn';
 import { ActionsColumn, NameColumn, ScheduleColumn } from '@app/ingestV2/source/IngestionSourceTableColumns';
+import TableFooter from '@app/ingestV2/source/components/TableFooter';
 import { getIngestionSourceStatus } from '@app/ingestV2/source/utils';
 
 import { IngestionSource } from '@types';
@@ -24,6 +25,7 @@ interface Props {
     onDelete: (urn: string) => void;
     onChangeSort: (field: string, order: SorterResult<any>['order']) => void;
     isLoading?: boolean;
+    isLastPage?: boolean;
 }
 
 function IngestionSourceTable({
@@ -35,6 +37,7 @@ function IngestionSourceTable({
     onDelete,
     onChangeSort,
     isLoading,
+    isLastPage,
 }: Props) {
     const tableData = sources.map((source) => ({
         urn: source.urn,
@@ -121,6 +124,7 @@ function IngestionSourceTable({
             isScrollable
             handleSortColumnChange={handleSortColumnChange}
             isLoading={isLoading}
+            footer={isLastPage ? <TableFooter colSpan={tableColumns.length} /> : null}
         />
     );
 }
